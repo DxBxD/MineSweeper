@@ -12,7 +12,6 @@ const FLAG = '<img src="img/flag.png">'
 
 // Game global vars
 
-
 var gGame
 var gBoard
 var gLevel = {
@@ -20,7 +19,6 @@ var gLevel = {
     MINES: 2
 }
 var gIsListenerOn = false
-var gIsFirstMove
 
 
 // INIT FUNCTION // 
@@ -230,10 +228,12 @@ function onCellClicked(elCell) {
         setMines(gBoard, gLevel.MINES, rowIdx, colIdx)
         // setting the mines count for each cell
         setMinesNegsCount(gBoard)
+        // Cancels the first move switch
+        gGame.isFirstMove = false
         // render the board changes
         renderBoard(gBoard)
     }
-    
+
     if (currCell.isMarked) return
 
     if (currCell.isMine) {
