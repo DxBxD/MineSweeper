@@ -46,6 +46,7 @@ button {
     outline: 2px solid;
     outline-color: black;
     border-radius: 1.5%;
+    padding: 4px;
     cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>👆</text></svg>") 5 0,auto; /*!emojicursor.app*/
 }
 
@@ -86,14 +87,13 @@ tbody {
 
 
 td {
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     border: solid 2px;
     border-top-color: #989898;
     border-left-color: #989898;
     border-bottom-color: #ffffff;
     border-right-color: #ffffff;
-    border-radius: 1.5%;
     background-color: #bdbdbd;
     font-size: 11px;
     text-align: center;
@@ -101,7 +101,7 @@ td {
 }
 
 td img {
-    height: 17px;
+    height: 19px;
 }
 
 .timer {
@@ -155,7 +155,7 @@ td img {
 }
 
 .mine img {
-    height: 17px;
+    height: 17.5px;
 }
 
 .mine-clicked {
@@ -167,7 +167,7 @@ td img {
 }
 
 .mine-clicked img {
-    height: 18px;
+    height: 18.5px;
 }
 
 footer {
