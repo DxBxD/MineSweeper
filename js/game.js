@@ -12,6 +12,7 @@ const FLAG = '<img src="img/flag.png">'
 
 // Game global vars
 
+var gIsListenerOn = false
 var gGame
 var gBoard
 var gLevel = {
@@ -63,10 +64,13 @@ renderBoard(gBoard)
 
 /* Deactivating right-click and sending the event 
 to my onCellMarked function*/
-document.addEventListener('contextmenu', function(event) {
-    event.preventDefault()
-    onCellMarked(event.target)
-})
+if (!gIsListenerOn) {
+    gIsListenerOn = true;
+    document.addEventListener('contextmenu', function(event) {
+        event.preventDefault()
+        onCellMarked(event.target)
+    })
+}
 }
 
 
