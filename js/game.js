@@ -7,57 +7,71 @@
 
 const EMPTY = ''
 const MINE = '<img src="img/mine.png">'
+const FLAG = '<img src="img/flag.png">'
 
 
 // Game global vars
 
-var gBoard
-var gLevel
 var gGame
+var gBoard
+var gLevel = {
+    SIZE: 4,
+    MINES: 2
+}
 
 
 // INIT FUNCTION // 
 
 function onInit() {
 
-// Activating the gLevel object
-gLevel = {
-    SIZE: 4,
-    MINES: 2
-}
+// // Activating the gLevel object
+// gLevel = {
+//     SIZE: 4,
+//     MINES: 2
+// }
 
 // Activating the gGame object
 gGame = {
-    isOn: false,
+    isOn: true,
     isVictory: false,
     shownCount: 0,
     markedCount: 0,
     secsPassed: 0
 }
 
-// building the initial gBoard 
-// (leaving space for different
-// values of height and width on purpose)
+/* building the initial gBoard 
+(leaving space for different values of height and width on purpose) */
 gBoard = buildBoard(gLevel.SIZE, gLevel.SIZE)
 
 // setting the mines for testing
-gBoard[1][1].isMine = true
-gBoard[1][1].cellClass = 'mine',
-gBoard[1][1].cellContent =  MINE
+setMines(gBoard, gLevel.MINES)
 
-gBoard[2][1].isMine = true
-gBoard[2][1].cellClass = 'mine',
-gBoard[2][1].cellContent =  MINE
+// gBoard[1][1].isMine = true
+// gBoard[1][1].cellClass = 'mine',
+// gBoard[1][1].cellContent =  MINE
+
+// gBoard[2][1].isMine = true
+// gBoard[2][1].cellClass = 'mine',
+// gBoard[2][1].cellContent =  MINE
 
 // setting the mines count for each cell
 setMinesNegsCount(gBoard)
 
 // rendering the final game board
 renderBoard(gBoard)
+
+
+/* Deactivating right-click and sending the event 
+to my onCellMarked function*/
+document.addEventListener('contextmenu', function(event) {
+    event.preventDefault()
+    onCellMarked(event.target)
+})
 }
 
 
 // a function for building the board
+
 function buildBoard(height, width) {
 var board = []
 
@@ -78,15 +92,34 @@ return board
 }
 
 
-// a function for counting
-// the mines around a cell
-function countMineNegs(board, rowNum, colNum) {
+// a funtion for setting mines
+
+function setMines(board, minesNum) {
+    var emptyCells = []
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board[i].length; j++) {
+            emptyCells.push({i: i, j: j})
+        }
+    }
+    shuffle(emptyCells)
+    for (var m = 0; m < minesNum; m++) {
+        var randCell = emptyCells[m]
+        gBoard[randCell.i][randCell.j].isMine = true
+        gBoard[randCell.i][randCell.j].cellClass = 'mine'
+        gBoard[randCell.i][randCell.j].cellContent =  MINE
+    }
+}
+
+
+// a function for countng the mines around a cell
+
+function countMineNegs(board, rowIdx, colIdx) {
     var mineCount = 0
-    for (var i = rowNum - 1; i <= rowNum + 1; i++) {
+    for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
         if (i < 0 || i >= board.length) continue
-        for (var j = colNum - 1; j <= colNum + 1; j++) {
+        for (var j = colIdx - 1; j <= colIdx + 1; j++) {
             if (j < 0 || j >= board[i].length) continue
-            if (i === rowNum && j === colNum) continue
+            if (i === rowIdx && j === colIdx) continue
             var currCell = board[i][j]
             if (currCell.cellContent === MINE) mineCount++
         }
@@ -95,8 +128,8 @@ function countMineNegs(board, rowNum, colNum) {
 }
 
 
-// a function for setting the mines
-//count for each cell
+// a function for setting the mines count for each cell
+
 function setMinesNegsCount(board) {
     for (var i = 0; i < board.length; i++) {
         for (var j = 0; j < board[0].length; j++) {
@@ -155,12 +188,20 @@ function renderBoard(board) {
 
         for (var j = 0; j < board[0].length; j++) {
             var currCell = board[i][j]
-            var currCellContent = currCell.cellContent
-            var currCellClass = currCell.cellClass
+            var currCellContent = ''
+            var currCellClass = ''
+            currCellClass += currCell.cellClass
             
-            // if (!currCell.isShown) currCellClass += ' hidden'
+            if (currCell.isMarked) {
+                currCellClass += ' hidden'
+                currCellContent = FLAG
+            } else if (!currCell.isShown) {
+                currCellClass += ' hidden'
+            } else {
+                currCellContent += currCell.cellContent
+            }
 
-            strHTML += `<td data-i="${i}" data-j="${j}" class="${currCellClass}" onclick="onCellClicked()">${currCellContent}</td>`
+            strHTML += `<td data-i="${i}" data-j="${j}" class="${currCellClass}" onclick="onCellClicked(this)">${currCellContent}</td>`
         }
         strHTML += '</tr>'
     }
@@ -174,26 +215,52 @@ function renderBoard(board) {
 // on the game board
 
 function onCellClicked(elCell) {
-    var i = elCell.dataset.i
-    var j = elCell.dataset.j
-    var currCell = gBoard[i][j]
+    if (!gGame.isOn) return
+    var rowIdx = +elCell.dataset.i
+    var colIdx = +elCell.dataset.j
+    var currCell = gBoard[rowIdx][colIdx]
+    if (currCell.isMarked) return
     if (currCell.isMine) {
+        currCell.cellClass = 'mine-clicked'
         gGame.isOn = false
         gGame.isVictory = false
+    } else if (currCell.cellContent === EMPTY) {
+        revealNegs(gBoard, rowIdx, colIdx)
+    } else {
+        currCell.isShown = true
+        elCell.classList.remove('hidden')
     }
+    renderBoard(gBoard)
     checkGameOver()
 }
 
 
 function onCellMarked(elCell) {
-
+    if (!gGame.isOn) return
+    if (elCell.tagName === 'IMG') {
+        elCell = elCell.parentElement
+    }
+    var rowIdx = +elCell.dataset.i
+    var colIdx = +elCell.dataset.j
+    var currCell = gBoard[rowIdx][colIdx]
+    if (currCell.isShown) return
+    if (!currCell.isMarked) {
+        currCell.isMarked = true
+        gGame.markedCount++
+        // console.log(gGame.markedCount)
+    } else {
+        currCell.isMarked = false
+        gGame.markedCount--
+        // console.log(gGame.markedCount)
+    }
+    renderBoard(gBoard)
 }
 
 
 function checkGameOver() {
     if (gGame.isOn) return
     if (!gGame.isVictory) {
-        revealBoard(gBoard)
+        revealMines(gBoard)
     }
 }
 
@@ -203,11 +270,34 @@ function expandShown(board, elCell, i, j) {
 }
 
 
-function revealBoard(board) {
+function revealMines(board) {
     for (var i = 0; i < board.length; i++) {
         for (var j = 0; j < board[i].length; j++) {
-            board[i][j].isShown = true
+            if (board[i][j].isMine) {
+                board[i][j].isShown = true
+            }
+        }   
+    }
+    renderBoard(board)
+}
+
+
+function revealNegs(board, rowIdx, colIdx) {
+    for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
+        if (i < 0 || i >= board.length) continue
+        for (var j = colIdx - 1; j <= colIdx + 1; j++) {
+            if (j < 0 || j >= board[i].length) continue
+            // if (i === rowIdx && j === colIdx) continue
+            var currCell = board[i][j]
+            currCell.isShown = true
         }
     }
     renderBoard(board)
+}
+
+
+function onButtonClicked(tableSize, minesNum) {
+    gLevel.SIZE = tableSize
+    gLevel.MINES = minesNum
+    onInit()
 }

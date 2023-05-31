@@ -9,11 +9,17 @@
 
 <body onload="onInit()">
   <h1>MineSweeper</h1>
-  <div class="timer">000</div>
+  <!-- <div class="timer">000</div> -->
 
+<div>
+  <br>
+  <button class="easy-button" onclick="onButtonClicked(4, 2)">EASY</button>
+  <button class="medium-button" onclick="onButtonClicked(8, 14)">MEDIUM</button>
+  <button class="hard-button" onclick="onButtonClicked(12, 32)">HARD</button>
   <table>
     <tbody class="board"></tbody>
   </table>
+</div>
 
   <script src="./js/game.js"></script>
   <script src="./js/util.js"></script>
