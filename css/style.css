@@ -3,6 +3,11 @@
     src: url('mine-sweeper.ttf');
 }
 
+@font-face {
+    font-family: 'clock';
+    src: url('clock.ttf');
+}
+
 * {
     box-sizing: border-box;
     cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>🤚</text></svg>") 5 0,auto; /*!emojicursor.app*/
@@ -10,10 +15,10 @@
 
 body {
     background: linear-gradient(rgb(17, 17, 17), rgb(37, 37, 37)) no-repeat center center fixed; 
-    -webkit-background-size: cover;
+    /* -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
-    background-size: cover;
+    background-size: cover; */
     color: whitesmoke;
     font-family: 'mine-sweeper';
     font-size: small;
@@ -39,15 +44,15 @@ button {
     border-bottom-color: #ffffff;
     border-right-color: #ffffff;
     background-color: #bdbdbd;
-    font-size: 15px;
+    font-size: 15.62px;
     font-family: 'mine-sweeper';
     text-align: center;
     cursor: pointer;
     outline: 2px solid;
     outline-color: black;
     border-radius: 1.5%;
-    padding: 4px;
     cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>👆</text></svg>") 5 0,auto; /*!emojicursor.app*/
+    margin: 10px
 }
 
 .easy-button {
@@ -62,10 +67,111 @@ button {
     color: red;
 }
 
-table {
+.game-console {
+    display: flex;
+    justify-content: center;
+    width: 500px;
+    padding: 3px;
+    margin-top: 0px;
     margin-left: auto;
     margin-right: auto;
-    margin-top: 40px;
+    margin: 0 auto;
+    max-width: 375px;
+}
+
+.control-table {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+}
+
+.control-boxes {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.marks-left {
+    margin-top: 10px;
+    border: solid 3px;
+    border: solid 2px;
+    color: red;
+    border-top-color: #575656;
+    border-left-color: #575656;
+    border-bottom-color: #1c1c1c;
+    border-right-color: #1c1c1c;
+    background-color: black;
+    font-size: 15px;
+    font-family: 'clock';
+    text-align: center;
+    cursor: pointer;
+    outline: 2px solid;
+    outline-color: black;
+    border-radius: 1.5%;
+    padding-top: 4px;
+    padding-bottom: 11px;
+    padding-left: 6.5px;
+    padding-right: 15px;
+    max-width: 66px;
+    height: 33px;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>🚩</text></svg>") 5 0,auto; /*!emojicursor.app*/
+    transition: 2s;
+}
+
+.smiley-button {
+    text-align: center;
+    justify-content: center;
+    height: 32px;
+    width: 32px;
+    border: solid 2px;
+    border-top-color: #989898;
+    border-left-color: #989898;
+    border-bottom-color: #ffffff;
+    border-right-color: #ffffff;
+    background-color: #bdbdbd;
+    padding: 3px;
+    border-radius: 1.5%;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>👆</text></svg>") 5 0,auto; /*!emojicursor.app*/
+}
+
+.smiley-button img {
+    height: 22px;
+    width: 22px;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>👆</text></svg>") 5 0,auto; /*!emojicursor.app*/
+}
+
+.timer {
+    margin-top: 10px;
+    border: solid 3px;
+    border: solid 2px;
+    color: red;
+    border-top-color: #575656;
+    border-left-color: #575656;
+    border-bottom-color: #1c1c1c;
+    border-right-color: #1c1c1c;
+    background-color: black;
+    font-size: 15px;
+    font-family: 'clock';
+    text-align: center;
+    outline: 2px solid;
+    outline-color: black;
+    border-radius: 1.5%;
+    padding-top: 4px;
+    padding-bottom: 11px;
+    padding-left: 6.5px;
+    padding-right: 15px;
+    max-width: 66px;
+    height: 33px;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>⏱</text></svg>") 5 0,auto; /*!emojicursor.app*/
+    transition: 2s;
+}
+
+table {
+    max-width: 100%;
+    margin: 0 auto;
+    /* justify-content: center; */
     border: solid 2px;
     border-top-color: #cfcfcf;
     border-left-color: #c6c6c6;
@@ -85,29 +191,23 @@ tbody {
     cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>👆</text></svg>") 5 0,auto; /*!emojicursor.app*/
 }
 
-
 td {
-    width: 28px;
-    height: 28px;
+    width: 26px;
+    height: 26px;
     border: solid 2px;
     border-top-color: #989898;
     border-left-color: #989898;
     border-bottom-color: #ffffff;
     border-right-color: #ffffff;
     background-color: #bdbdbd;
-    font-size: 11px;
+    font-size: 10px;
     text-align: center;
     cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>👆</text></svg>") 5 0,auto; /*!emojicursor.app*/
 }
 
 td img {
-    height: 19px;
-}
-
-.timer {
-    font-size: 25px;
-    padding: 20px;
-    transition: 2s;
+    height: 17px;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>👆</text></svg>") 5 0,auto; /*!emojicursor.app*/
 }
 
 .one {
@@ -155,7 +255,8 @@ td img {
 }
 
 .mine img {
-    height: 17.5px;
+    height: 15.5px;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>👆</text></svg>") 5 0,auto; /*!emojicursor.app*/
 }
 
 .mine-clicked {
@@ -167,7 +268,8 @@ td img {
 }
 
 .mine-clicked img {
-    height: 18.5px;
+    height: 16.5px;
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>👆</text></svg>") 5 0,auto; /*!emojicursor.app*/
 }
 
 footer {

@@ -8,18 +8,22 @@
 </head>
 
 <body onload="onInit()">
-  <h1 onclick = "location.reload()"><span>💣</span> MineSweeper <span>💣</span></h1>
-  <!-- <div class="timer">000</div> -->
-
-<div>
-  <br>
-  <button class="easy-button" onclick="onButtonClicked(4, 2)">EASY</button>
-  <button class="medium-button" onclick="onButtonClicked(8, 14)">MEDIUM</button>
-  <button class="hard-button" onclick="onButtonClicked(12, 32)">HARD</button>
-  <table>
-    <tbody class="board"></tbody>
-  </table>
-</div>
+  <h1 onclick="location.reload()"><span>💣</span> MineSweeper <span>💣</span></h1>
+  <button class="easy-button" onclick="onDifficultyButtonClicked(4, 2)">EASY</button>
+  <button class="medium-button" onclick="onDifficultyButtonClicked(8, 14)">MEDIUM</button>
+  <button class="hard-button" onclick="onDifficultyButtonClicked(12, 32)">HARD</button>
+  <div class="game-console">
+    <div class="control-table">
+      <div class="control-boxes">
+          <div class="marks-left"></div>
+        <button class="smiley-button" onclick="onSmileyClicked()"></button>
+          <div class="timer">000</div>
+      </div>
+      <table>
+        <tbody class="board"></tbody>
+      </table>
+    </div>
+  </div>
 
   <footer>DIN BEN DOR</footer>
   <script src="./js/game.js"></script>
