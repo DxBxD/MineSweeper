@@ -416,7 +416,7 @@ function revealCellAndNegs(board, rowIdx, colIdx) {
     if (currCell.isShown || currCell.isMine) return
     
     currCell.isShown = true
-    gGame.isShown++
+    gGame.shownCount++
 
     for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
         if (i < 0 || i >= board.length) continue
