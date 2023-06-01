@@ -18,7 +18,7 @@ const CLICK_SOUND = new Audio('sound/click.mp3')
 const WIN_SOUND = new Audio('sound/win.wav')
 const MINE_SOUND = new Audio('sound/lose.wav')
 const FLAG_SOUND = new Audio('sound/flag.mp3')
-const START_SOUND = new Audio('sound/start.wav')
+const START_SOUND = new Audio('sound/start.mp3')
 CLICK_SOUND.volume = 0.1
 WIN_SOUND.volume = 0.9
 MINE_SOUND.volume = 0.5
@@ -28,11 +28,11 @@ START_SOUND.volume = 0.13
 
 // Game designs for different board sizes consts
 
-const EASY_DIFF_TD_STYLE = 'style="width: 76px; max-width: 76px; height: 82px; max-height: 82px; font-size: 25px;"'
-const EASY_DIFF_IMG_STYLE = 'style="height: 53px; max-height:53px; width: 53px; max-width: 53px;"'
-const MEDIUM_DIFF_TD_STYLE = 'style="width: 40px; max-width: 40px; height: 40px; max-height: 40px; font-size: 14px;"'
-const MEDIUM_DIFF_IMG_STYLE = 'style="height: 29px; max-height:29px; width: 29px; max-width: 29px;"'
-const HARD_DIFF_TD_STYLE = 'style="width: 26px; max-width: 26px; height: 26px; max-height: 26px; font-size: 11px;"'
+const EASY_DIFF_TD_STYLE = 'style="width: 76px; max-width: 76px; height: 82px; max-height: 82px; font-size: 24px;"'
+const EASY_DIFF_IMG_STYLE = 'style="height: 45px; max-height:45px; width: 45px; max-width: 45px;"'
+const MEDIUM_DIFF_TD_STYLE = 'style="width: 40px; max-width: 40px; height: 40px; max-height: 40px; font-size: 13px;"'
+const MEDIUM_DIFF_IMG_STYLE = 'style="height: 24px; max-height:24px; width: 24px; max-width: 24px;"'
+const HARD_DIFF_TD_STYLE = 'style="width: 26px; max-width: 26px; height: 26px; max-height: 26px; font-size: 10px;"'
 const HARD_DIFF_IMG_STYLE = 'style="height: 17px; max-height:17px; width: 17px; max-width: 17px;"'
 
 
@@ -175,6 +175,8 @@ function onCellClicked(elCell) {
     var colIdx = +elCell.dataset.j
     var currCell = gBoard[rowIdx][colIdx]
 
+    if (currCell.isShown) return
+
     if (gGame.isFirstMove) {
         handleMines(gBoard, rowIdx, colIdx)
         activateTimer()
@@ -260,6 +262,8 @@ function handleMineClicked(currCell) {
         currCell.isShown = true
     } else {
         MINE_SOUND.play()
+        gGame.markedCount++
+        renderMarksLeft()
         gGame.livesLeft--
         currCell.cellClass = 'mine-clicked-1'
         elSmiley.classList.remove('one-life-Left')

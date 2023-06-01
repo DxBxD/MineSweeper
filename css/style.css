@@ -32,15 +32,16 @@ h1 {
    color: lightgray;
     text-shadow: -1.5px -1px 0 #484848, 1px -1px 0 #484848, -1.5px 1px 0 #c0c0c0, 1px 1px 0 #bbbbbb;
     cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>👆</text></svg>") 5 0,auto; /*!emojicursor.app*/
+    font-size: 28.65px;
 }
 
 button {
     border: solid 3px;
-    border-top-color: #989898;
-    border-left-color: #989898;
-    border-bottom-color: #ffffff;
-    border-right-color: #ffffff;
-    background-color: #bdbdbd;
+    border-top-color: #ffffff;
+    border-left-color: #ffffff;
+    border-bottom-color: #989898;
+    border-right-color: #989898;
+    background-color: #d0d0d0;
     font-size: 15.62px;
     font-family: 'mine-sweeper';
     text-align: center;
@@ -54,14 +55,59 @@ button {
 
 .easy-button {
     color: green;
+    transition: 20ms;
+}
+
+.easy-button:hover {
+    background-color: #bfd3bf;
+    transition: 150ms;
+}
+
+.easy-button:active {
+    border-top-color: #989898;
+    border-left-color: #989898;
+    border-bottom-color: #ffffff;
+    border-right-color: #ffffff;
+    background-color: #bdbdbd;
+    transition: 30ms;
 }
 
 .medium-button {
     color: darkblue;
+    transition: 20ms;
+}
+
+.medium-button:hover {
+    background-color: #c1c1db;
+    transition: 150ms;
+}
+
+.medium-button:active {
+    border-top-color: #989898;
+    border-left-color: #989898;
+    border-bottom-color: #ffffff;
+    border-right-color: #ffffff;
+    background-color: #bdbdbd;
+    transition: 30ms;
 }
 
 .hard-button {
     color: red;
+    transition: 20ms;
+}
+
+.hard-button:hover {
+    background-color: #e8d4d4fb;
+    transition: 150ms;
+}
+
+.hard-button:active {
+    border-top-color: #989898;
+    border-left-color: #989898;
+    border-bottom-color: #ffffff;
+    border-right-color: #ffffff;
+    background-color: #bdbdbd;
+    transition: 30ms;
 }
 
 .game-console {
@@ -145,6 +191,20 @@ button {
     border-left-color: #57f764;
     border-bottom-color: #0f6802;
     border-right-color: #0f6802;
+    transition: 100ms;
+}
+
+.three-lives-Left:hover {
+    background: linear-gradient(rgb(6, 203, 6), rgb(22, 135, 2));
+}
+
+.three-lives-Left:active {
+    background: linear-gradient(rgb(4, 187, 4), rgb(17, 104, 2));
+    border-top-color: #0f6802;
+    border-left-color: #0f6802;
+    border-bottom-color: #26f438;
+    border-right-color: #26f438;
+    transition: 100ms;
 }
 
 .two-lives-Left {
@@ -153,6 +213,20 @@ button {
     border-left-color: #fee66e;
     border-bottom-color: #ffa200;
     border-right-color: #ffa200;
+    transition: 100ms;
+}
+
+.two-lives-Left:hover {
+    background: linear-gradient(rgb(243, 203, 1), rgb(255, 204, 0));
+}
+
+.two-lives-Left:active {
+    background: linear-gradient(rgb(255, 204, 0), rgb(255, 174, 0));
+    border-top-color: #c08a00;
+    border-left-color: #c08a00;
+    border-bottom-color: #f7be39;
+    border-right-color: #f7be39;
+    transition: 100ms;
 }
 
 .one-life-Left {
@@ -161,6 +235,20 @@ button {
     border-left-color: #fe9c6c;
     border-bottom-color:  #ae3e01;
     border-right-color: #ae3e01;
+    transition: 100ms;
+}
+
+.one-life-Left:hover {
+    background: linear-gradient(rgb(255, 136, 0), rgb(255, 128, 0));
+}
+
+.one-life-Left:active {
+    background: linear-gradient(rgb(255, 115, 0), rgb(255, 55, 0));
+    border-top-color: #ae3e01;
+    border-left-color: #ae3e01;
+    border-bottom-color:  rgb(250, 145, 25);
+    border-right-color: rgb(250, 145, 25);
+    transition: 100ms;
 }
 
 .zero-lives-Left {
@@ -169,6 +257,20 @@ button {
     border-left-color: #f44b4b;
     border-bottom-color: #ae0101;
     border-right-color: #ae0101;
+    transition: 100ms;
+}
+
+.zero-lives-Left:hover {
+    background: linear-gradient(rgb(221, 2, 2), rgb(113, 1, 1));
+}
+
+.zero-lives-Left:active {
+    background: linear-gradient(rgb(155, 2, 2), rgb(75, 0, 0));
+    border-top-color: #d50303;
+    border-left-color: #d50303;
+    border-bottom-color: #f33232;
+    border-right-color: #f33232;
+    transition: 100ms;
 }
 
 .timer {
@@ -280,7 +382,7 @@ td img {
 
 .hidden {
     border: solid 2px;
-    background-color: #8a8989;
+    background-color: #7d7d7d;
     border-top-color: #ffffff;
     border-left-color: #ffffff;
     border-bottom-color: #7b7b7b;
@@ -288,6 +390,15 @@ td img {
     /* text-indent: 10000%;
     white-space: nowrap;
     overflow: hidden; */
+}
+
+.hidden:hover {
+    border: solid 2.6px;
+    background-color: #787777;
+    border-top-color: #d1d0d0;
+    border-left-color: #d1d0d0;
+    border-bottom-color: #606060;
+    border-right-color: #606060;
 }
 
 .mine-clicked-3 {
@@ -304,8 +415,8 @@ td img {
 
 .mine-clicked-2 {
     background: linear-gradient(rgb(255, 166, 0), rgb(255, 106, 0));
-    border-top-color: #ae3e01;
-    border-left-color: #ae3e01;
+    border-top-color: #e55f16;
+    border-left-color: #e55f16;
     border-bottom-color: #fe9c6c;
     border-right-color: #fe9c6c;
 }
@@ -318,8 +429,8 @@ td img {
     background: linear-gradient(red, darkred);
     border-top-color: #ae0101;
     border-left-color: #ae0101;
-    border-bottom-color: #f44b4b;
-    border-right-color: #f44b4b;
+    border-bottom-color: #e83232;
+    border-right-color: #e83232;
 }
 
 .mine-clicked-1 img {
