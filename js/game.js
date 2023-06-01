@@ -6,13 +6,34 @@
 // Game elements consts
 
 const EMPTY = ''
-const MINE = '<img src="img/mine.png">'
-const FLAG = '<img src="img/flag.png">'
+
 const elSmiley = document.querySelector('.smiley-button')
+
 const SMILEY_SMILE = '<img src="img/smiley-smile.png">'
 const SMILEY_SHOCKED = '<img src="img/smiley-shocked.png">'
 const SMILEY_DEAD = '<img src="img/smiley-dead.png">'
 const SMILEY_COOL = '<img src="img/smiley-cool.png">'
+
+const CLICK_SOUND = new Audio('sound/click.mp3')
+const WIN_SOUND = new Audio('sound/win.wav')
+const MINE_SOUND = new Audio('sound/lose.wav')
+const FLAG_SOUND = new Audio('sound/flag.mp3')
+const START_SOUND = new Audio('sound/start.wav')
+CLICK_SOUND.volume = 0.1
+WIN_SOUND.volume = 0.9
+MINE_SOUND.volume = 0.5
+FLAG_SOUND.volume = 0.7
+START_SOUND.volume = 0.13
+
+
+// Game designs for different board sizes consts
+
+const EASY_DIFF_TD_STYLE = 'style="width: 76px; max-width: 76px; height: 82px; max-height: 82px; font-size: 25px;"'
+const EASY_DIFF_IMG_STYLE = 'style="height: 53px; max-height:53px; width: 53px; max-width: 53px;"'
+const MEDIUM_DIFF_TD_STYLE = 'style="width: 40px; max-width: 40px; height: 40px; max-height: 40px; font-size: 14px;"'
+const MEDIUM_DIFF_IMG_STYLE = 'style="height: 29px; max-height:29px; width: 29px; max-width: 29px;"'
+const HARD_DIFF_TD_STYLE = 'style="width: 26px; max-width: 26px; height: 26px; max-height: 26px; font-size: 11px;"'
+const HARD_DIFF_IMG_STYLE = 'style="height: 17px; max-height:17px; width: 17px; max-width: 17px;"'
 
 
 // Game global vars (gLevel activated to a default value)
@@ -21,7 +42,9 @@ var gGame
 var gBoard
 var gLevel = {
     SIZE: 12,
-    MINES: 32
+    MINES: 32,
+    TD_STYLE: HARD_DIFF_TD_STYLE,
+    IMG_STYLE: HARD_DIFF_IMG_STYLE
 }
 var gIsListenerOn = false
 var gTimerInterval
@@ -36,7 +59,11 @@ function onInit() {
     //     MINES: 2
     // }
 
-    // Activating the gGame object fresh
+    // Activating the resized images for the game
+    globalThis.MINE = `<img ${gLevel.IMG_STYLE} src="img/mine.png">`
+    globalThis.FLAG = `<img ${gLevel.IMG_STYLE} src="img/flag.png">`
+
+    // Activating the gGame object fresh    
     gGame = {
         isOn: true,
         isVictory: false,
@@ -48,9 +75,9 @@ function onInit() {
     }
 
     /* building the initial gBoard 
-    (leaving space for different values of height
-    and width on purpose) */
+    (leaving space for different values of height and width on purpose) */
     gBoard = buildBoard(gLevel.SIZE, gLevel.SIZE)
+
 
     // gBoard[1][1].isMine = true
     // gBoard[1][1].cellClass = 'mine',
@@ -60,6 +87,7 @@ function onInit() {
     // gBoard[2][1].cellClass = 'mine',
     // gBoard[2][1].cellContent =  MINE
 
+
     // rendering the final game board
     renderBoard(gBoard)
 
@@ -67,6 +95,7 @@ function onInit() {
     renderMarksLeft()
 
     // Rendering the initial Smiley button
+    elSmiley.classList.add('three-lives-Left')
     renderSmiley()
 
     /* Deactivating right-click and sending the event 
@@ -126,7 +155,7 @@ function renderBoard(board) {
                 currCellContent += currCell.cellContent
             }
 
-            strHTML += `<td data-i="${i}" data-j="${j}" class="${currCellClass}" onclick="onCellClicked(this)">${currCellContent}</td>`
+            strHTML += `<td ${gLevel.TD_STYLE} data-i="${i}" data-j="${j}" class="${currCellClass}" onclick="onCellClicked(this)">${currCellContent}</td>`
         }
         strHTML += '</tr>'
     }
@@ -154,9 +183,7 @@ function onCellClicked(elCell) {
     if (currCell.isMarked) return
 
     if (currCell.isMine) {
-        currCell.cellClass = 'mine-clicked'
-        gGame.isOn = false
-        gGame.isVictory = false
+        handleMineClicked(currCell)
     } else if (currCell.cellContent === EMPTY) {
         revealCellAndNegs(gBoard, rowIdx, colIdx)
     } else {
@@ -166,6 +193,7 @@ function onCellClicked(elCell) {
         console.log(gGame.shownCount)
     }
 
+    CLICK_SOUND.play()
     renderBoard(gBoard)
 
     checkGameOver()
@@ -203,7 +231,42 @@ function onCellMarked(elCell) {
 
     renderMarksLeft()
     renderBoard(gBoard)
+    FLAG_SOUND.play()
     checkGameOver()
+}
+
+
+// a function that handles what happens once the gamer clicks on a mine
+
+function handleMineClicked(currCell) {
+    if (currCell.isShown) return
+    if (gGame.livesLeft === 3) {
+        MINE_SOUND.play()
+        gGame.livesLeft--
+        gGame.markedCount++
+        renderMarksLeft()
+        currCell.cellClass = 'mine-clicked-3'
+        elSmiley.classList.remove('three-lives-Left')
+        elSmiley.classList.add('two-lives-Left')
+        currCell.isShown = true
+    } else if (gGame.livesLeft === 2) {
+        MINE_SOUND.play()
+        gGame.markedCount++
+        renderMarksLeft()
+        gGame.livesLeft--
+        currCell.cellClass = 'mine-clicked-2'
+        elSmiley.classList.remove('two-lives-Left')
+        elSmiley.classList.add('one-life-Left')
+        currCell.isShown = true
+    } else {
+        MINE_SOUND.play()
+        gGame.livesLeft--
+        currCell.cellClass = 'mine-clicked-1'
+        elSmiley.classList.remove('one-life-Left')
+        elSmiley.classList.add('zero-lives-Left')
+        gGame.isOn = false
+        gGame.isVictory = false
+    }
 }
 
 
@@ -313,9 +376,10 @@ function checkGameOver() {
     if (!gGame.isOn && !gGame.isVictory) {
         revealMines(gBoard)
     } else if (gGame.shownCount === gLevel.SIZE ** 2 - gLevel.MINES &&
-               gGame.markedCount === gLevel.MINES) {
-                    gGame.isOn = false
-                    gGame.isVictory = true
+        gGame.markedCount === gLevel.MINES) {
+        gGame.isOn = false
+        gGame.isVictory = true
+        WIN_SOUND.play()
     }
     if (gGame.isOn) {
         renderSmiley()
@@ -324,11 +388,6 @@ function checkGameOver() {
     renderSmiley()
     clearInterval(gTimerInterval)
 }
-
-
-// function expandShown(board, elCell, i, j) {
-
-// }
 
 
 /* a function for revealing the mines 
@@ -349,19 +408,25 @@ function revealMines(board) {
 
 
 /* a function for revealing the curr cell
-and its neighbor cells */
+and its neighbor cells (*recursion added) */
 
 function revealCellAndNegs(board, rowIdx, colIdx) {
+    var currCell = board[rowIdx][colIdx]
+    
+    if (currCell.isShown || currCell.isMine) return
+    
+    currCell.isShown = true
+    gGame.isShown++
+
     for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
         if (i < 0 || i >= board.length) continue
         for (var j = colIdx - 1; j <= colIdx + 1; j++) {
             if (j < 0 || j >= board[i].length) continue
-            // if (i === rowIdx && j === colIdx) continue
+            if (i === rowIdx && j === colIdx) continue
             var currCell = board[i][j]
-            if (!currCell.isShown) {
-                currCell.isShown = true
-                gGame.shownCount++
-                console.log(gGame.shownCount)
+            if (currCell.minesAroundCount === 0) {
+                // console.log(gGame.shownCount)
+                revealCellAndNegs(board, i, j)
             }
         }
     }
@@ -370,24 +435,48 @@ function revealCellAndNegs(board, rowIdx, colIdx) {
 
 
 /* a function that's activated when 
-the user clicks on a button */
+the gamer clicks on a difficulty changing button */
 
 function onDifficultyButtonClicked(tableSize, minesNum) {
     document.querySelector('.timer').innerText = '000'
+    elSmiley.classList.remove('zero-lives-Left')
+    elSmiley.classList.remove('one-life-Left')
+    elSmiley.classList.remove('two-lives-Left')
+    elSmiley.classList.remove('three-lives-Left')
     clearInterval(gTimerInterval)
-    gLevel.SIZE = tableSize
-    gLevel.MINES = minesNum
+    gLevel.SIZE = Number(tableSize)
+    gLevel.MINES = Number(minesNum)
+    switch (gLevel.SIZE) {
+        case 4:
+            gLevel.TD_STYLE = EASY_DIFF_TD_STYLE
+            gLevel.IMG_STYLE = EASY_DIFF_IMG_STYLE
+            break
+        case 8:
+            gLevel.TD_STYLE = MEDIUM_DIFF_TD_STYLE
+            gLevel.IMG_STYLE = MEDIUM_DIFF_IMG_STYLE
+            break
+        case 12:
+            gLevel.TD_STYLE = HARD_DIFF_TD_STYLE
+            gLevel.IMG_STYLE = HARD_DIFF_IMG_STYLE
+            break
+    }
+    START_SOUND.play()
     onInit()
 }
 
 
 /* a function that's activated when
-the user clicks on smiley */
+the gamer clicks on smiley */
 
 function onSmileyClicked() {
+    elSmiley.classList.remove('zero-lives-Left')
+    elSmiley.classList.remove('one-life-Left')
+    elSmiley.classList.remove('two-lives-Left')
+    elSmiley.classList.remove('three-lives-Left')
     renderSmiley()
     document.querySelector('.timer').innerText = '000'
     clearInterval(gTimerInterval)
+    START_SOUND.play()
     onInit()
 }
 
