@@ -91,6 +91,11 @@ function onInit() {
     // rendering the final game board
     renderBoard(gBoard)
 
+    // var tds = document.querySelectorAll('td')
+    // for (var i = 0; i < tds.length; i++) {
+    //     tds[i].classList.add('easy');
+    // }
+
     // Rendering the initial marks-left
     renderMarksLeft()
 
@@ -416,9 +421,9 @@ and its neighbor cells (*recursion added) */
 
 function revealCellAndNegs(board, rowIdx, colIdx) {
     var currCell = board[rowIdx][colIdx]
-    
+
     if (currCell.isShown || currCell.isMine) return
-    
+
     currCell.isShown = true
     gGame.shownCount++
 

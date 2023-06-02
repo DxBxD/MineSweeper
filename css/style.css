@@ -41,7 +41,7 @@ button {
     border-left-color: #ffffff;
     border-bottom-color: #989898;
     border-right-color: #989898;
-    background-color: #d0d0d0;
+    background-color: #c4c4c4;
     font-size: 15.62px;
     font-family: 'mine-sweeper';
     text-align: center;
@@ -304,13 +304,14 @@ table {
     width: 342px;
     margin: 0 auto;
     /* justify-content: center; */
-    border: solid 2px;
+    border: solid 1.4px;
     border-top-color: #cfcfcf;
     border-left-color: #c6c6c6;
+    border-right-color: #575656;
     border-bottom-color: #575656;
-    border-right-color: #4d4b4b;
     border-radius: 1%;
     cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'  width='40' height='48' viewport='0 0 100 100' style='fill:black;font-size:20px;'><text y='50%'>👆</text></svg>") 5 0,auto; /*!emojicursor.app*/
+    background: linear-gradient(rgb(17, 16, 16), rgb(0, 0, 38));
 }
 
 tbody {
@@ -385,8 +386,8 @@ td img {
     background-color: #7d7d7d;
     border-top-color: #ffffff;
     border-left-color: #ffffff;
-    border-bottom-color: #7b7b7b;
-    border-right-color: #7b7b7b;
+    border-right-color: #696969;
+    border-bottom-color: #696969;
     /* text-indent: 10000%;
     white-space: nowrap;
     overflow: hidden; */
@@ -395,10 +396,10 @@ td img {
 .hidden:hover {
     border: solid 2.6px;
     background-color: #787777;
-    border-top-color: #d1d0d0;
-    border-left-color: #d1d0d0;
-    border-bottom-color: #606060;
-    border-right-color: #606060;
+    border-top-color: #dedede;
+    border-left-color: #dedede;
+    border-bottom-color: #515151;
+    border-right-color: #515151;
 }
 
 .mine-clicked-3 {
@@ -445,8 +446,8 @@ footer {
    width: 100%;
    height: 39px;
 }
-/* 
-.easy td { 
+
+/* .easy td { 
     width: 76px;
     max-width: 76px;
     height: 76px;
