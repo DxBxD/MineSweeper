@@ -14,25 +14,52 @@ const SMILEY_SHOCKED = '<img src="img/smiley-shocked.png">'
 const SMILEY_DEAD = '<img src="img/smiley-dead.png">'
 const SMILEY_COOL = '<img src="img/smiley-cool.png">'
 
+const SAFECLICK3 = '<img src="img/shield-3.png">'
+const SAFECLICK2 = '<img src="img/shield-2.png">'
+const SAFECLICK1 = '<img src="img/shield-1.png">'
+const SAFECLICK0 = '<img src="img/shield-0.png">'
+
+const HINT3 = '<img src="img/lightbulb-yellow-3.png">'
+const HINT2 = '<img src="img/lightbulb-yellow-2.png">'
+const HINT1 = '<img src="img/lightbulb-yellow-1.png">'
+const HINT0 = '<img src="img/lightbulb-yellow-0.png">'
+
+const MEGAHINT1 = '<img src="img/lightbulb-blue-1.png">'
+const MEGAHINT0 = '<img src="img/lightbulb-blue-0.png">'
+
 const CLICK_SOUND = new Audio('sound/click.mp3')
 const WIN_SOUND = new Audio('sound/win.wav')
 const MINE_SOUND = new Audio('sound/lose.wav')
 const FLAG_SOUND = new Audio('sound/flag.mp3')
 const START_SOUND = new Audio('sound/start.mp3')
+const TERMINATOR_SOUND = new Audio('sound/terminator.mp3')
+const CONSTRUCTION_SOUND = new Audio('sound/construction.mp3')
+const SET_MINE_SOUND = new Audio('sound/set_mine.mp3')
+const UNDO_SOUND = new Audio('sound/undo.mp3')
+const SAFECLICK_SOUND = new Audio('sound/safeclick.mp3')
+const HINT_SOUND = new Audio('sound/hint.mp3')
+const MEGAHINT_SOUND = new Audio('sound/megahint.mp3')
+
 CLICK_SOUND.volume = 0.1
-WIN_SOUND.volume = 0.9
-MINE_SOUND.volume = 0.5
-FLAG_SOUND.volume = 0.7
+WIN_SOUND.volume = 0.4
+MINE_SOUND.volume = 0.3
+FLAG_SOUND.volume = 0.5
 START_SOUND.volume = 0.13
+TERMINATOR_SOUND.volume = 0.25
+CONSTRUCTION_SOUND.volume = 0.3
+SET_MINE_SOUND.volume = 0.1
+UNDO_SOUND.volume = 1
+HINT_SOUND.volume = 1
+MEGAHINT_SOUND.volume = 0.3
 
 
 // Game designs for different board sizes consts
 
-const EASY_DIFF_TD_STYLE = 'style="width: 76px; max-width: 76px; height: 82px; max-height: 82px; font-size: 24px;"'
-const EASY_DIFF_IMG_STYLE = 'style="height: 45px; max-height:45px; width: 45px; max-width: 45px;"'
-const MEDIUM_DIFF_TD_STYLE = 'style="width: 40px; max-width: 40px; height: 40px; max-height: 40px; font-size: 13px;"'
+const EASY_DIFF_TD_STYLE = 'style="width: 76px; max-width: 76px; height: 86.5px; max-height: 82px; font-size: 24px;"'
+const EASY_DIFF_IMG_STYLE = 'style="height: 43.5px; max-height:43.5px; width: 43.5px; max-width: 43.5px;"'
+const MEDIUM_DIFF_TD_STYLE = 'style="width: 42.3px; max-width: 42.3px; height: 42.3px; max-height: 42.3px; font-size: 13px;"'
 const MEDIUM_DIFF_IMG_STYLE = 'style="height: 24px; max-height:24px; width: 24px; max-width: 24px;"'
-const HARD_DIFF_TD_STYLE = 'style="width: 26px; max-width: 26px; height: 26px; max-height: 26px; font-size: 10px;"'
+const HARD_DIFF_TD_STYLE = 'style="width: 27.5px; max-width: 27.5px; height: 27.5px; max-height: 27.5px; font-size: 10px;"'
 const HARD_DIFF_IMG_STYLE = 'style="height: 17px; max-height:17px; width: 17px; max-width: 17px;"'
 
 
@@ -43,11 +70,14 @@ var gBoard
 var gLevel = {
     SIZE: 12,
     MINES: 32,
+    isConstructed: false,
+    minesPlacedCounter: 0,
     TD_STYLE: HARD_DIFF_TD_STYLE,
     IMG_STYLE: HARD_DIFF_IMG_STYLE
 }
 var gIsListenerOn = false
 var gTimerInterval
+var gPrevBoards = []
 
 
 // The init function // 
@@ -62,6 +92,7 @@ function onInit() {
     // Activating the resized images for the game
     globalThis.MINE = `<img ${gLevel.IMG_STYLE} src="img/mine.png">`
     globalThis.FLAG = `<img ${gLevel.IMG_STYLE} src="img/flag.png">`
+    globalThis.SHIELD = `<img ${gLevel.IMG_STYLE} src="img/shield.png"`
 
     // Activating the gGame object fresh    
     gGame = {
@@ -71,7 +102,18 @@ function onInit() {
         shownCount: 0,
         markedCount: 0,
         secsPassed: 0,
-        livesLeft: 3
+        livesLeft: 3,
+        currMineCount: gLevel.MINES,
+        hintsLeft: 3,
+        megaHintsLeft: 1,
+        safeClicksLeft: 3,
+        isHintOn: false,
+        isMegaHintOn: false,
+        megaHintStepCounter: 0,
+        megaHintFirstStepIdxs: null,
+        megaHintSecondStepIdxs: null,
+        isTerminatorOn: true,
+        prevBoards: []
     }
 
     /* building the initial gBoard 
@@ -100,8 +142,16 @@ function onInit() {
     renderMarksLeft()
 
     // Rendering the initial Smiley button
-    elSmiley.classList.add('three-lives-Left')
     renderSmiley()
+
+    // Rendering Hints Button
+    renderHintButton()
+
+    // Rendering Megahint Button
+    renderMegahintButton()
+
+    // Rendering Safeclicks Button
+    renderSafeClicksButton()
 
     /* Deactivating right-click and sending the event 
     to my onCellMarked function*/
@@ -119,13 +169,15 @@ function onInit() {
 
 function buildBoard(height, width) {
     var board = []
+    var isShownVal = false
+    if (gLevel.isConstructed) isShownVal = true
 
     for (var i = 0; i < height; i++) {
         board[i] = []
         for (var j = 0; j < width; j++) {
             board[i][j] = {
                 minesAroundCount: 0,
-                isShown: false,
+                isShown: isShownVal,
                 isMine: false,
                 isMarked: false,
                 cellClass: 'empty',
@@ -145,7 +197,7 @@ function renderBoard(board) {
     for (var i = 0; i < board.length; i++) {
         strHTML += '<tr>'
 
-        for (var j = 0; j < board[0].length; j++) {
+        for (var j = 0; j < board[i].length; j++) {
             var currCell = board[i][j]
             var currCellContent = ''
             var currCellClass = ''
@@ -154,7 +206,7 @@ function renderBoard(board) {
             if (currCell.isMarked) {
                 currCellClass += ' hidden'
                 currCellContent = FLAG
-            } else if (!currCell.isShown) {
+            } else if (!currCell.isShown && currCell.cellContent !== SHIELD) {
                 currCellClass += ' hidden'
             } else {
                 currCellContent += currCell.cellContent
@@ -167,6 +219,7 @@ function renderBoard(board) {
 
     const elTable = document.querySelector('.board')
     elTable.innerHTML = strHTML
+    gGame.prevBoards.push(strHTML)
 }
 
 
@@ -180,20 +233,61 @@ function onCellClicked(elCell) {
     var colIdx = +elCell.dataset.j
     var currCell = gBoard[rowIdx][colIdx]
 
+    if (gLevel.isConstructed) {
+        SET_MINE_SOUND.play()
+        if (gLevel.minesPlacedCounter <= gLevel.MINES) {
+            if (currCell.isMine) return
+            currCell.isMine = true
+            currCell.cellClass = 'mine'
+            currCell.cellContent = MINE
+            gLevel.minesPlacedCounter++
+            renderBoard(gBoard)
+        } 
+        if (gLevel.minesPlacedCounter === gLevel.MINES) {
+            gGame.isFirstMove = false
+            setTimeout(() => {
+                hideAllCells(gBoard)
+                handleMines(gBoard)
+            }, 500)
+        }
+        return
+    }
+
     if (currCell.isShown) return
 
     if (gGame.isFirstMove) {
         handleMines(gBoard, rowIdx, colIdx)
+        gGame.isFirstMove = false
         activateTimer()
+        saveCurrBoardForUndo()
     }
 
     if (currCell.isMarked) return
 
+    if (gGame.isMegaHintOn) {
+        handleMegaHint(rowIdx, colIdx)
+        return
+    }
+
+
+    if (gGame.isHintOn) {
+        revealCellAndNegs(gBoard, rowIdx, colIdx)
+        setTimeout(() => {
+            hideCellAndNegs(gBoard, rowIdx, colIdx)
+        }, 1000)
+        gGame.isHintOn = false
+        CLICK_SOUND.play()
+        return
+    }
+
     if (currCell.isMine) {
+        saveCurrBoardForUndo()
         handleMineClicked(currCell)
     } else if (currCell.cellContent === EMPTY) {
-        revealCellAndNegs(gBoard, rowIdx, colIdx)
+        saveCurrBoardForUndo()
+        revealCellAndNegsRecursive(gBoard, rowIdx, colIdx)
     } else {
+        saveCurrBoardForUndo()
         currCell.isShown = true
         elCell.classList.remove('hidden')
         gGame.shownCount++
@@ -217,18 +311,20 @@ function onCellMarked(elCell) {
         elCell = elCell.parentElement
     }
 
-    var markLeft = gLevel.MINES - gGame.markedCount
+    var marksLeft = gGame.currMineCount - gGame.markedCount
     var rowIdx = +elCell.dataset.i
     var colIdx = +elCell.dataset.j
     var currCell = gBoard[rowIdx][colIdx]
 
     if (currCell.isShown) return
 
-    if (!currCell.isMarked && markLeft > 0) {
+    if (!currCell.isMarked && marksLeft > 0) {
+        saveCurrBoardForUndo()
         currCell.isMarked = true
         gGame.markedCount++
         // console.log(gGame.markedCount)
     } else if (currCell.isMarked) {
+        saveCurrBoardForUndo()
         currCell.isMarked = false
         gGame.markedCount--
         // console.log(gGame.markedCount)
@@ -253,8 +349,7 @@ function handleMineClicked(currCell) {
         gGame.markedCount++
         renderMarksLeft()
         currCell.cellClass = 'mine-clicked-3'
-        elSmiley.classList.remove('three-lives-Left')
-        elSmiley.classList.add('two-lives-Left')
+        renderSmiley()
         currCell.isShown = true
     } else if (gGame.livesLeft === 2) {
         MINE_SOUND.play()
@@ -262,8 +357,7 @@ function handleMineClicked(currCell) {
         renderMarksLeft()
         gGame.livesLeft--
         currCell.cellClass = 'mine-clicked-2'
-        elSmiley.classList.remove('two-lives-Left')
-        elSmiley.classList.add('one-life-Left')
+        renderSmiley()
         currCell.isShown = true
     } else {
         MINE_SOUND.play()
@@ -271,8 +365,7 @@ function handleMineClicked(currCell) {
         renderMarksLeft()
         gGame.livesLeft--
         currCell.cellClass = 'mine-clicked-1'
-        elSmiley.classList.remove('one-life-Left')
-        elSmiley.classList.add('zero-lives-Left')
+        renderSmiley()
         gGame.isOn = false
         gGame.isVictory = false
     }
@@ -282,14 +375,16 @@ function handleMineClicked(currCell) {
 // A function that handles the initial mine placing on the board
 
 function handleMines(board, firstCellRowIdx, firstCellColIdx) {
-    // setting the mines, while making sure to exclude the first cell
-    setMines(board, gLevel.MINES, firstCellRowIdx, firstCellColIdx)
+    // setting the mines, while making sure to exclude the first cell and construction mode
+    if (!gLevel.isConstructed) {
+        setMines(board, gGame.currMineCount, firstCellRowIdx, firstCellColIdx)
+    } else {
+        gLevel.isConstructed = false
+        gLevel.minesPlacedCounter = 0
+    }
 
     // setting the mines count for each cell
     setMinesNegsCount(board)
-
-    // Turns the first move switch
-    gGame.isFirstMove = false
 
     // render the board changes
     renderBoard(board)
@@ -326,9 +421,14 @@ function setMinesNegsCount(board) {
             board[i][j].minesAroundCount = currCellMineCount
 
             if (board[i][j].isMine) continue
-            if (board[i][j].minesAroundCount === 0) continue
+            if (board[i][j].minesAroundCount === 0) {
+                board[i][j].cellContent = EMPTY
+                continue
+            }
 
             board[i][j].cellContent = String(currCellMineCount)
+
+            if (board[i][j].cellClass === 'terminated') continue
 
             switch (currCellMineCount) {
                 case 1:
@@ -384,8 +484,8 @@ is over after each reveal\marking */
 function checkGameOver() {
     if (!gGame.isOn && !gGame.isVictory) {
         revealMines(gBoard)
-    } else if (gGame.shownCount === gLevel.SIZE ** 2 - gLevel.MINES &&
-        gGame.markedCount === gLevel.MINES) {
+    } else if (gGame.shownCount === gLevel.SIZE ** 2 - gGame.currMineCount &&
+        gGame.markedCount === gGame.currMineCount) {
         gGame.isOn = false
         gGame.isVictory = true
         WIN_SOUND.play()
@@ -419,7 +519,7 @@ function revealMines(board) {
 /* a function for revealing the curr cell
 and its neighbor cells (*recursion added) */
 
-function revealCellAndNegs(board, rowIdx, colIdx) {
+function revealCellAndNegsRecursive(board, rowIdx, colIdx) {
     var currCell = board[rowIdx][colIdx]
 
     if (currCell.isShown || currCell.isMine) return
@@ -435,8 +535,36 @@ function revealCellAndNegs(board, rowIdx, colIdx) {
             var currCell = board[i][j]
             if (currCell.minesAroundCount === 0) {
                 // console.log(gGame.shownCount)
-                revealCellAndNegs(board, i, j)
+                revealCellAndNegsRecursive(board, i, j)
             }
+        }
+    }
+    renderBoard(board)
+}
+
+
+function revealCellAndNegs(board, rowIdx, colIdx) {
+    for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
+        if (i < 0 || i >= board.length) continue
+        for (var j = colIdx - 1; j <= colIdx + 1; j++) {
+            if (j < 0 || j >= board[i].length) continue
+            // if (i === rowIdx && j === colIdx) continue
+            var currCell = board[i][j]
+            currCell.isShown = true
+        }
+    }
+    renderBoard(board)
+}
+
+
+function hideCellAndNegs(board, rowIdx, colIdx) {
+    for (var i = rowIdx - 1; i <= rowIdx + 1; i++) {
+        if (i < 0 || i >= board.length) continue
+        for (var j = colIdx - 1; j <= colIdx + 1; j++) {
+            if (j < 0 || j >= board[i].length) continue
+            // if (i === rowIdx && j === colIdx) continue
+            var currCell = board[i][j]
+            currCell.isShown = false
         }
     }
     renderBoard(board)
@@ -470,6 +598,9 @@ function onDifficultyButtonClicked(tableSize, minesNum) {
             break
     }
     START_SOUND.play()
+    gPrevBoards = []
+    gLevel.isConstructed = false
+    gLevel.minesPlacedCounter = 0
     onInit()
 }
 
@@ -486,6 +617,9 @@ function onSmileyClicked() {
     document.querySelector('.timer').innerText = '000'
     clearInterval(gTimerInterval)
     START_SOUND.play()
+    gPrevBoards = []
+    gLevel.isConstructed = false
+    gLevel.minesPlacedCounter = 0
     onInit()
 }
 
@@ -493,6 +627,11 @@ function onSmileyClicked() {
 // a function for starting\restarting the timer
 
 function activateTimer() {
+    
+    if (gTimerInterval) {
+        clearInterval(gTimerInterval)
+    }
+    
     gTimerInterval = setInterval(function () {
         gGame.secsPassed++;
         renderTimer();
@@ -507,6 +646,9 @@ function renderTimer() {
     while (timeStr.length < 3) {
         timeStr = "0" + timeStr
     }
+    if (timeStr.length > 3) {
+        timeStr = "999"
+    }
     document.querySelector('.timer').innerText = timeStr
 }
 
@@ -514,11 +656,14 @@ function renderTimer() {
 // a function for rendering marks left
 
 function renderMarksLeft() {
-    var marksLeftStr = String(gLevel.MINES - gGame.markedCount)
-    if (marksLeftStr.length < 2) {
-        marksLeftStr = "00" + marksLeftStr
-    } else if (marksLeftStr.length < 3) {
-        marksLeftStr = "0" + marksLeftStr
+    var marksLeft = gGame.currMineCount - gGame.markedCount
+    var marksLeftStr
+    if (marksLeft < 0) {
+        marksLeftStr = "000"
+    } else if (marksLeft < 10) {
+        marksLeftStr = "00" + marksLeft
+    } else if (marksLeft < 100) {
+        marksLeftStr = "0" + marksLeft
     }
     document.querySelector('.marks-left').innerText = marksLeftStr
 }
@@ -529,6 +674,28 @@ function renderMarksLeft() {
 function renderSmiley() {
     // console.log(elSmiley)
     elSmiley.innerHTML = SMILEY_SHOCKED
+
+    if (gGame.livesLeft === 3) {
+        elSmiley.classList.remove('two-lives-Left')
+        elSmiley.classList.remove('one-life-Left')
+        elSmiley.classList.remove('zero-lives-Left')
+        elSmiley.classList.add('three-lives-Left')
+    } else if (gGame.livesLeft === 2) {
+        elSmiley.classList.remove('three-lives-Left')
+        elSmiley.classList.remove('one-life-Left')
+        elSmiley.classList.remove('zero-lives-Left')
+        elSmiley.classList.add('two-lives-Left')
+    } else if (gGame.livesLeft === 1) {
+        elSmiley.classList.remove('three-lives-Left')
+        elSmiley.classList.remove('two-lives-Left')
+        elSmiley.classList.remove('zero-lives-Left')
+        elSmiley.classList.add('one-life-Left')
+    } else {
+        elSmiley.classList.remove('three-lives-Left')
+        elSmiley.classList.remove('two-lives-Left')
+        elSmiley.classList.remove('one-life-Left')
+        elSmiley.classList.add('zero-lives-Left')
+    }
 
     setTimeout(() => {
         if (gGame.isOn) {
@@ -541,4 +708,302 @@ function renderSmiley() {
             }
         }
     }, 200)
+}
+
+
+function onUndoButtonClicked() {
+    renderPrevBoard()
+    activateTimer()
+}
+
+
+function saveCurrBoardForUndo() {
+    gPrevBoards.push({ GAME: structuredClone(gGame), BOARD: structuredClone(gBoard) })
+}
+
+
+function renderPrevBoard() {
+    var prevBoard = gPrevBoards.pop()
+    if (prevBoard === undefined) return
+    gGame = structuredClone(prevBoard.GAME)
+    gBoard = structuredClone(prevBoard.BOARD)
+    renderSmiley()
+    renderMarksLeft()
+    renderSafeClicksButton()
+    renderHintButton()
+    renderMegahintButton()
+    renderMarksLeft()
+    renderTimer()
+    renderBoard(gBoard)
+    UNDO_SOUND.play()
+}
+
+
+function onConstructionButtonClicked() {
+    gLevel.isConstructed = false
+    gLevel.minesPlacedCounter = 0
+    CONSTRUCTION_SOUND.play()
+    gLevel.isConstructed = true
+    clearInterval(gTimerInterval)
+    document.querySelector('.timer').innerText = '000'
+    onInit()
+}
+
+
+function hideAllCells(board) {
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board[i].length; j++) {
+            var currCell = board[i][j]
+            currCell.isShown = false
+        }
+    }
+}
+
+
+function onSafeclickButtonClicked() {
+    if (!gGame.isOn) return
+    if (gGame.isMegaHintOn) return
+    if (gGame.isHintOn) return
+    if (gLevel.isConstructed) return
+    if (gGame.safeClicksLeft === 0) return
+    if (gGame.isFirstMove) {
+        saveCurrBoardForUndo()
+        handleMines(gBoard, 0, 0)
+        activateTimer()
+    } else {
+        saveCurrBoardForUndo()
+    }
+
+    gGame.safeClicksLeft--
+
+    renderSafeClicksButton()
+
+    var safeCellsIdxs = []
+
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[i].length; j++) {
+            var currCell = gBoard[i][j]
+            if (!currCell.isMine && !currCell.isShown && !currCell.isMarked) {
+                safeCellsIdxs.push({ i, j })
+            }
+        }
+    }
+
+    shuffle(safeCellsIdxs)
+
+    var randomSafeCellIdxs = safeCellsIdxs.pop()
+    var randomSafeCell = gBoard[randomSafeCellIdxs.i][randomSafeCellIdxs.j]
+
+    var prevCellContent = ''
+    prevCellContent += randomSafeCell.cellContent
+
+    randomSafeCell.cellContent = SHIELD
+
+    renderBoard(gBoard)
+
+    SAFECLICK_SOUND.play()
+
+    setTimeout(() => {
+        randomSafeCell.cellContent = prevCellContent
+        renderBoard(gBoard)
+    }, 2000)
+}
+
+
+function renderSafeClicksButton() {
+    var elButton = document.querySelector('.safeclick-button')
+
+    switch (gGame.safeClicksLeft) {
+        case 3:
+            elButton.innerHTML = SAFECLICK3
+            break
+        case 2:
+            elButton.innerHTML = SAFECLICK2
+            break
+        case 1:
+            elButton.innerHTML = SAFECLICK1
+            break
+        case 0:
+            elButton.innerHTML = SAFECLICK0
+            break
+    }
+}
+
+
+function onHintButtonClicked() {
+    if (!gGame.isOn) return
+    if (gGame.isHintOn) return
+    if (gGame.isMegaHintOn) return
+    if (gLevel.isConstructed) return
+    if (gGame.hintsLeft === 0) return
+
+    if (gGame.isFirstMove) {
+        saveCurrBoardForUndo()
+        handleMines(gBoard, 0, 0)
+        activateTimer()
+    } else {
+        saveCurrBoardForUndo()
+    }
+
+    gGame.hintsLeft--
+    gGame.isHintOn = true
+
+    renderHintButton()
+
+    HINT_SOUND.play()
+}
+
+
+function renderHintButton() {
+    var elButton = document.querySelector('.hint-button')
+
+    switch (gGame.hintsLeft) {
+        case 3:
+            elButton.innerHTML = HINT3
+            break
+        case 2:
+            elButton.innerHTML = HINT2
+            break
+        case 1:
+            elButton.innerHTML = HINT1
+            break
+        case 0:
+            elButton.innerHTML = HINT0
+            break
+    }
+}
+
+
+function onMegahintButtonClicked() {
+    if (!gGame.isOn) return
+    if (gGame.megaHintsLeft === 0) return
+    if (gGame.isMegaHintOn) return
+    if (gGame.isHintOn) return
+    if (gLevel.isConstructed) return
+    
+    if (gGame.isFirstMove) {
+        saveCurrBoardForUndo()
+        handleMines(gBoard, 0, 0)
+        activateTimer()
+    } else {
+        saveCurrBoardForUndo()
+    }
+    
+    gGame.megaHintsLeft--
+    gGame.isMegaHintOn = true
+    gGame.megaHintStepCounter++
+    
+    renderMegahintButton()
+
+    MEGAHINT_SOUND.play()
+}
+
+
+function handleMegaHint(rowIdx, colIdx) {
+    if (gGame.megaHintStepCounter === 1) {
+        gGame.megaHintStepCounter++
+        gGame.megaHintFirstStepIdxs = { rowIdx: rowIdx, colIdx: colIdx }
+        document.querySelector('.board').addEventListener('mouseover', onCellHovered)
+        return
+    } else if (gGame.megaHintStepCounter === 2) {
+        document.querySelector('.board').removeEventListener('mousemove', onCellHovered)
+        removeTemporaryHighlight()
+        gGame.megaHintSecondStepIdxs = { rowIdx: rowIdx, colIdx: colIdx }
+        if (gGame.megaHintSecondStepIdxs.rowIdx < gGame.megaHintFirstStepIdxs.rowIdx) {
+            [gGame.megaHintFirstStepIdxs.rowIdx, gGame.megaHintSecondStepIdxs.rowIdx] = [gGame.megaHintSecondStepIdxs.rowIdx, gGame.megaHintFirstStepIdxs.rowIdx]
+        }
+        if (gGame.megaHintSecondStepIdxs.colIdx < gGame.megaHintFirstStepIdxs.colIdx) {
+            [gGame.megaHintFirstStepIdxs.colIdx, gGame.megaHintSecondStepIdxs.colIdx] = [gGame.megaHintSecondStepIdxs.colIdx, gGame.megaHintFirstStepIdxs.colIdx]
+        }
+        for (var i = gGame.megaHintFirstStepIdxs.rowIdx; i <= gGame.megaHintSecondStepIdxs.rowIdx; i++) {
+            for (var j = gGame.megaHintFirstStepIdxs.colIdx; j <= gGame.megaHintSecondStepIdxs.colIdx; j++) {
+                revealAndHideCell(i, j)
+            }
+        }
+        renderBoard(gBoard)
+        setTimeout(() => {
+            renderBoard(gBoard)
+        }, 3100)
+        gGame.isMegaHintOn = false
+        gGame.megaHintStepCounter = 0
+        gGame.megaHintFirstStepIdxs = null
+        gGame.megaHintSecondStepIdxs = null
+        return
+    }
+}
+
+
+function revealAndHideCell(i, j) {
+    gBoard[i][j].isShown = true
+    setTimeout(() => {
+        gBoard[i][j].isShown = false
+    }, 3000)
+}
+
+
+function renderMegahintButton() {
+    var elButton = document.querySelector('.megahint-button')
+    switch (gGame.megaHintsLeft) {
+        case 1:
+            elButton.innerHTML = MEGAHINT1
+            break
+        case 0:
+            elButton.innerHTML = MEGAHINT0
+            break
+    }
+}
+
+
+function onTerminatorButtonClicked() {
+    if (!gGame.isOn) return
+
+    if (gGame.isHintOn) return
+    if (gGame.isMegaHintOn) return
+    if (gLevel.isConstructed) return
+
+    if (!gGame.isTerminatorOn) {
+        TERMINATOR_SOUND.play()
+        return
+    }
+    if (gGame.isFirstMove) {
+        saveCurrBoardForUndo()
+        handleMines(gBoard, 0, 0)
+        activateTimer()
+    } else {
+        saveCurrBoardForUndo()
+    }
+
+    TERMINATOR_SOUND.play()
+    MINE_SOUND.play()
+
+    var mineCells = []
+    var minesToTerminateCount = 3
+
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[i].length; j++) {
+            var currCell = gBoard[i][j]
+            if (currCell.isMine && !currCell.isMarked) {
+                mineCells.push({ i: i, j: j })
+            }
+        }
+    }
+    shuffle(mineCells)
+
+    for (var m = 0; m < minesToTerminateCount; m++) {
+        var currRandomMine = mineCells.pop()
+        gBoard[currRandomMine.i][currRandomMine.j].isShown = true
+        gBoard[currRandomMine.i][currRandomMine.j].isMine = false
+        gBoard[currRandomMine.i][currRandomMine.j].cellContent = EMPTY
+        gBoard[currRandomMine.i][currRandomMine.j].cellClass = 'terminated'
+        gGame.shownCount++
+        gGame.currMineCount--
+    }
+
+    setMinesNegsCount(gBoard)
+
+    renderBoard(gBoard)
+
+    renderMarksLeft()
+
+    gGame.isTerminatorOn = false
 }
