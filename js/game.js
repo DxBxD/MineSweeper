@@ -842,10 +842,10 @@ function onHintButtonClicked() {
     if (gGame.hintsLeft === 0) return
 
     if (gGame.isFirstMove) {
-        saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
         gGame.isFirstMove = false
+        saveCurrBoardForUndo()
     } else {
         saveCurrBoardForUndo()
     }
@@ -887,10 +887,10 @@ function onMegahintButtonClicked() {
     if (gLevel.isConstructed) return
     
     if (gGame.isFirstMove) {
-        saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
         gGame.isFirstMove = false
+        saveCurrBoardForUndo()
     } else {
         saveCurrBoardForUndo()
     }
@@ -972,10 +972,10 @@ function onTerminatorButtonClicked() {
         return
     }
     if (gGame.isFirstMove) {
-        saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
         gGame.isFirstMove = false
+        saveCurrBoardForUndo()
     } else {
         saveCurrBoardForUndo()
     }
