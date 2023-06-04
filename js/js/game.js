@@ -770,7 +770,6 @@ function onSafeclickButtonClicked() {
         saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
-        gGame.isFirstMove = false
     } else {
         saveCurrBoardForUndo()
     }
@@ -842,7 +841,6 @@ function onHintButtonClicked() {
         saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
-        gGame.isFirstMove = false
     } else {
         saveCurrBoardForUndo()
     }
@@ -887,7 +885,6 @@ function onMegahintButtonClicked() {
         saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
-        gGame.isFirstMove = false
     } else {
         saveCurrBoardForUndo()
     }
@@ -972,7 +969,6 @@ function onTerminatorButtonClicked() {
         saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
-        gGame.isFirstMove = false
     } else {
         saveCurrBoardForUndo()
     }
