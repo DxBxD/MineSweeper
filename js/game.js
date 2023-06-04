@@ -531,13 +531,14 @@ function revealCellAndNegsRecursive(board, rowIdx, colIdx) {
         if (i < 0 || i >= board.length) continue
         for (var j = colIdx - 1; j <= colIdx + 1; j++) {
             if (j < 0 || j >= board[i].length) continue
-            if (i === rowIdx && j === colIdx) continue
+            // if (i === rowIdx && j === colIdx) continue
             var currCell = board[i][j]
             if (currCell.minesAroundCount === 0) {
                 // console.log(gGame.shownCount)
                 revealCellAndNegsRecursive(board, i, j)
-            } else {
+            } else if (!currCell.isShown) {
                 currCell.isShown = true
+                gGame.shownCount++
             }
         }
     }
