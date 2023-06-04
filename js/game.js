@@ -536,6 +536,8 @@ function revealCellAndNegsRecursive(board, rowIdx, colIdx) {
             if (currCell.minesAroundCount === 0) {
                 // console.log(gGame.shownCount)
                 revealCellAndNegsRecursive(board, i, j)
+            } else {
+                currCell.isShown = true
             }
         }
     }
@@ -770,6 +772,7 @@ function onSafeclickButtonClicked() {
         saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
+        gGame.isFirstMove = false
     } else {
         saveCurrBoardForUndo()
     }
@@ -841,6 +844,7 @@ function onHintButtonClicked() {
         saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
+        gGame.isFirstMove = false
     } else {
         saveCurrBoardForUndo()
     }
@@ -885,6 +889,7 @@ function onMegahintButtonClicked() {
         saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
+        gGame.isFirstMove = false
     } else {
         saveCurrBoardForUndo()
     }
@@ -969,6 +974,7 @@ function onTerminatorButtonClicked() {
         saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
+        gGame.isFirstMove = false
     } else {
         saveCurrBoardForUndo()
     }
