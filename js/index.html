@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>MineSweeper 2.0</title>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body onload="onInit()">
+  <h1 onclick="location.reload()">MineSweeper 2.0</h1>
+  <button class="difficulty-button easy-button" onclick="onDifficultyButtonClicked(4, 3)">EASY</button>
+  <button class="difficulty-button medium-button" onclick="onDifficultyButtonClicked(8, 14)">MEDIUM</button>
+  <button class="difficulty-button hard-button" onclick="onDifficultyButtonClicked(12, 32)">HARD</button>
+  <div class="game-console">
+    <div class="control-table">
+      <div class="control-boxes">
+        <div class="marks-left"></div>
+        <button class="construct-button" onclick="onConstructionButtonClicked()"></button>
+        <button class="terminator-button" onclick="onTerminatorButtonClicked()"><img src="img/terminator.png"></button>
+        <button class="undo-button" onclick="onUndoButtonClicked()"><img src="img/undo.png"></button>
+        <button class="smiley-button" onclick="onSmileyClicked()"></button>
+        <button class="safeclick-button" onclick="onSafeclickButtonClicked()"><img src="img/shield-3.png"></button>
+        <button class="hint-button" onclick="onHintButtonClicked()"><img src="img/lightbulb-yellow-3.png"></button>
+        <button class="megahint-button" onclick="onMegahintButtonClicked()"><img src="img/lightbulb-blue-1.png"></button>
+        <div class="timer">000</div>
+      </div>
+      <table>
+        <tbody class="board"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>DIN BEN DOR</footer>
+  <script src="./js/game.js"></script>
+  <script src="./js/util.js"></script>
+</body>
+
+</html>
