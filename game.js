@@ -531,11 +531,14 @@ function revealCellAndNegsRecursive(board, rowIdx, colIdx) {
         if (i < 0 || i >= board.length) continue
         for (var j = colIdx - 1; j <= colIdx + 1; j++) {
             if (j < 0 || j >= board[i].length) continue
-            if (i === rowIdx && j === colIdx) continue
+            // if (i === rowIdx && j === colIdx) continue
             var currCell = board[i][j]
             if (currCell.minesAroundCount === 0) {
                 // console.log(gGame.shownCount)
                 revealCellAndNegsRecursive(board, i, j)
+            } else if (!currCell.isShown) {
+                currCell.isShown = true
+                gGame.shownCount++
             }
         }
     }
@@ -770,6 +773,7 @@ function onSafeclickButtonClicked() {
         saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
+        gGame.isFirstMove = false
     } else {
         saveCurrBoardForUndo()
     }
@@ -838,9 +842,10 @@ function onHintButtonClicked() {
     if (gGame.hintsLeft === 0) return
 
     if (gGame.isFirstMove) {
-        saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
+        gGame.isFirstMove = false
+        saveCurrBoardForUndo()
     } else {
         saveCurrBoardForUndo()
     }
@@ -882,9 +887,10 @@ function onMegahintButtonClicked() {
     if (gLevel.isConstructed) return
     
     if (gGame.isFirstMove) {
-        saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
+        gGame.isFirstMove = false
+        saveCurrBoardForUndo()
     } else {
         saveCurrBoardForUndo()
     }
@@ -966,9 +972,10 @@ function onTerminatorButtonClicked() {
         return
     }
     if (gGame.isFirstMove) {
-        saveCurrBoardForUndo()
         handleMines(gBoard, 0, 0)
         activateTimer()
+        gGame.isFirstMove = false
+        saveCurrBoardForUndo()
     } else {
         saveCurrBoardForUndo()
     }
